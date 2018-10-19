@@ -3,7 +3,7 @@
 #include <std_msgs/Int32MultiArray.h>
 #include <Encoder.h> 
 
-//Porst for the encoder are defined
+//Ports for the encoder are defined
 #define pin_enc_A_motor1 53
 #define pin_enc_B_motor1 52
 #define pin_enc_A_motor2 51
@@ -53,21 +53,25 @@ long newPosition_4;
 
 
 void loop() { 
+  //Reads all the encoders
   newPosition_1 = myEnc_1.read();
   newPosition_2 = myEnc_2.read();
   newPosition_3 = myEnc_3.read();
   newPosition_4 = myEnc_4.read();
-   
+
+  //Saves the value of the encoders
   oldPosition_1 = newPosition_1;
   oldPosition_2 = newPosition_2;
   oldPosition_3 = newPosition_3;
   oldPosition_4 = newPosition_4; 
-  
+
+  //Saves the new value of the encoders in an array
   encoder_counter.data[0]=newPosition_1;
   encoder_counter.data[1]=newPosition_2;
   encoder_counter.data[2]=newPosition_3;
   encoder_counter.data[3]=newPosition_4;
 
+  //Publishes the new values in the encoders
   encoder_counter_pub.publish(&encoder_counter); 
   nh.spinOnce(); 
   delay(intervalms); 

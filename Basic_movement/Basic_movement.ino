@@ -2,15 +2,15 @@
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 
-//Driver 1
+//Driver 1, WR
 //Motor 1
 int EN11  = 2;
 int EN12  = 3;
-//Motor 2 
+//Motor 2
 int EN13  = 4;    
 int EN14  = 5;    
 
-//Driver 2
+//Driver 2, WI
 //Motor 3
 int EN21  = 6;
 int EN22  = 7; 
@@ -70,7 +70,7 @@ void messageCb(const geometry_msgs::Twist& cmd_vel){
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &messageCb );
 
 void setup(){
- //Driver 1
+ //Driver 1, WR
  //Motor 1
  pinMode (EN11, OUTPUT); 
  pinMode (EN12, OUTPUT);
@@ -78,7 +78,7 @@ void setup(){
  pinMode (EN13, OUTPUT);
  pinMode (EN14, OUTPUT);
 
- //Driver 2
+ //Driver 2, WI
  //Motor 3
  pinMode (EN21, OUTPUT); 
  pinMode (EN22, OUTPUT);
