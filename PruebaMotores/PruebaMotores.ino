@@ -92,17 +92,8 @@ void stop(){
 }
 
 void loop(){
-  if(!digitalRead(up)){
-    forward();
-  }else if(!digitalRead(down)){
-    reverse();
-  }else if(!digitalRead(right)){
-    turnright();
-  }else if(!digitalRead(left)){
-    turnleft();
-  }else{
-    stop();
-  }
+
+
   
   /*TEST 1
   digitalWrite(EN11, HIGH);

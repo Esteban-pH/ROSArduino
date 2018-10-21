@@ -1,4 +1,4 @@
-#define USE_USBCON
+#define  USE_USBCON
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int32MultiArray.h>
@@ -19,6 +19,9 @@ int EN22  = 7;
 //Motor 4
 int EN23  = 8;    
 int EN24  = 9;
+
+//Port for the switch to change between teleop and manual mode
+int Switchmode = 27;
 
 //Ports for the encoder are defined
 #define pin_enc_A_motor1 53
@@ -63,9 +66,6 @@ Encoder myEnc_2(pin_enc_A_motor2,pin_enc_B_motor2);
 Encoder myEnc_3(pin_enc_A_motor3,pin_enc_B_motor3);
 Encoder myEnc_4(pin_enc_A_motor4,pin_enc_B_motor4);
 
-//ROS Handler
-ros::NodeHandle nh;
-
 void messageCb(const geometry_msgs::Twist& cmd_vel){
   //Here the speeds for the wheels are calculated based on the given twist
   wr=((2*cmd_vel.linear.x)+cmd_vel.angular.z*dis_wheels)/(2.0*radio_in_m);
@@ -98,11 +98,68 @@ void messageCb(const geometry_msgs::Twist& cmd_vel){
     analogWrite(EN23, 0);
     analogWrite(EN24, -pwm_wi);
   }
-  nh.spinOnce();
+    
 }
 
-//ROS declaration of suscriber and publisher
-ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &messageCb );
+//Functions to manual mode
+void Forward_function(){
+  digitalWrite(EN11, HIGH);
+  digitalWrite(EN12, LOW);
+  digitalWrite(EN13, HIGH);
+  digitalWrite(EN14, LOW);
+  digitalWrite(EN21, HIGH);
+  digitalWrite(EN22, LOW);
+  digitalWrite(EN23, HIGH);
+  digitalWrite(EN24, LOW);
+}
+
+void Backward_function(){
+  digitalWrite(EN11, LOW);
+  digitalWrite(EN12, HIGH);
+  digitalWrite(EN13, LOW);
+  digitalWrite(EN14, HIGH);
+  digitalWrite(EN21, LOW);
+  digitalWrite(EN22, HIGH);
+  digitalWrite(EN23, LOW);
+  digitalWrite(EN24, HIGH);
+}
+
+void TurnRight_function(){
+  digitalWrite(EN11, LOW);
+  digitalWrite(EN12, HIGH);
+  digitalWrite(EN13, LOW);
+  digitalWrite(EN14, HIGH);
+  digitalWrite(EN21, HIGH);
+  digitalWrite(EN22, LOW);
+  digitalWrite(EN23, HIGH);
+  digitalWrite(EN24, LOW);
+}
+
+void TurnLeft_function(){
+  digitalWrite(EN11, HIGH);
+  digitalWrite(EN12, LOW);
+  digitalWrite(EN13, HIGH);
+  digitalWrite(EN14, LOW);
+  digitalWrite(EN21, LOW);
+  digitalWrite(EN22, HIGH);
+  digitalWrite(EN23, LOW);
+  digitalWrite(EN24, HIGH);
+}
+
+void Stop_function(){
+  digitalWrite(EN11, HIGH);
+  digitalWrite(EN12, LOW);
+  digitalWrite(EN13, HIGH);
+  digitalWrite(EN14, LOW);
+  digitalWrite(EN21, LOW);
+  digitalWrite(EN22, HIGH);
+  digitalWrite(EN23, LOW);
+  digitalWrite(EN24, HIGH);
+}
+
+//ROS variables to handle both suscribers and publisher
+ros::NodeHandle nh;
+ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &messageCb);
 std_msgs::Int32MultiArray encoder_counter; //To keep the count of ticks in the encoder 
 ros::Publisher encoder_counter_pub("robot_vel", &encoder_counter); //The ROS publisher to the robot_vel topic
 
@@ -129,6 +186,9 @@ void setup(){
  pinMode (TurnRight,INPUT_PULLUP);
  pinMode (TurnLeft, INPUT_PULLUP);
 
+ //Switch
+ pinMode(Switchmode, INPUT_PULLUP);
+
  nh.initNode();
  //Initializes the array of integers
  encoder_counter.layout.dim = (std_msgs::MultiArrayDimension *) 
@@ -142,7 +202,6 @@ void setup(){
  encoder_counter.data_length = MULTIARRAY_SIZE; 
  nh.advertise(encoder_counter_pub); //Inits the publisher
  nh.subscribe(sub);
- nh.spinOnce();
 }
 
 void loop(){
@@ -164,6 +223,19 @@ void loop(){
   encoder_counter.data[2]=newPosition_3;
   encoder_counter.data[3]=newPosition_4;
 
+  //If the switch is turne on, it uses the manual mode
+  if(!digitalRead(Switchmode)){
+    if(!digitalRead(Forward))
+      Forward_function();
+    else if(!digitalRead(Backward))
+      Backward_function();
+    else if(!digitalRead(TurnRight))
+      TurnRight_function();
+    else if(!digitalRead(TurnLeft))
+      TurnLeft_function();
+    else
+      Stop_function();
+  }
   //Publishes the new values in the encoders
   encoder_counter_pub.publish(&encoder_counter); 
   nh.spinOnce(); 
