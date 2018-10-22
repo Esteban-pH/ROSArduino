@@ -20,9 +20,6 @@ int EN22  = 7;
 int EN23  = 8;    
 int EN24  = 9;
 
-//Port for the switch to change between teleop and manual mode
-int Switchmode = 27;
-
 //Ports for the encoder are defined
 #define pin_enc_A_motor1 53
 #define pin_enc_B_motor1 52
@@ -98,7 +95,6 @@ void messageCb(const geometry_msgs::Twist& cmd_vel){
     analogWrite(EN23, 0);
     analogWrite(EN24, -pwm_wi);
   }
-    
 }
 
 //Functions to manual mode
@@ -186,9 +182,6 @@ void setup(){
  pinMode (TurnRight,INPUT_PULLUP);
  pinMode (TurnLeft, INPUT_PULLUP);
 
- //Switch
- pinMode(Switchmode, INPUT_PULLUP);
-
  nh.initNode();
  //Initializes the array of integers
  encoder_counter.layout.dim = (std_msgs::MultiArrayDimension *) 
@@ -223,19 +216,17 @@ void loop(){
   encoder_counter.data[2]=newPosition_3;
   encoder_counter.data[3]=newPosition_4;
 
-  //If the switch is turne on, it uses the manual mode
-  if(!digitalRead(Switchmode)){
-    if(!digitalRead(Forward))
-      Forward_function();
-    else if(!digitalRead(Backward))
-      Backward_function();
-    else if(!digitalRead(TurnRight))
-      TurnRight_function();
-    else if(!digitalRead(TurnLeft))
-      TurnLeft_function();
-    else
-      Stop_function();
-  }
+  //Detects when the buttons for manual mode are being pressed
+  if(!digitalRead(Forward))
+    Forward_function();
+  else if(!digitalRead(Backward))
+    Backward_function();
+  else if(!digitalRead(TurnRight))
+    TurnRight_function();
+  else if(!digitalRead(TurnLeft))
+    TurnLeft_function();
+  else
+    Stop_function();
   //Publishes the new values in the encoders
   encoder_counter_pub.publish(&encoder_counter); 
   nh.spinOnce(); 

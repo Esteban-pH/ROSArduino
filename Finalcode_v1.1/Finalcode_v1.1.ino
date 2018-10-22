@@ -63,9 +63,6 @@ Encoder myEnc_2(pin_enc_A_motor2,pin_enc_B_motor2);
 Encoder myEnc_3(pin_enc_A_motor3,pin_enc_B_motor3);
 Encoder myEnc_4(pin_enc_A_motor4,pin_enc_B_motor4);
 
-//ROS Handler
-ros::NodeHandle nh;
-
 void messageCb(const geometry_msgs::Twist& cmd_vel){
   //Here the speeds for the wheels are calculated based on the given twist
   wr=((2*cmd_vel.linear.x)+cmd_vel.angular.z*dis_wheels)/(2.0*radio_in_m);
@@ -98,9 +95,10 @@ void messageCb(const geometry_msgs::Twist& cmd_vel){
     analogWrite(EN23, 0);
     analogWrite(EN24, -pwm_wi);
   }
-  nh.spinOnce();
 }
 
+//ROS Handler, it takes care of all publishers and suscribers
+ros::NodeHandle nh;
 //ROS declaration of suscriber and publisher
 ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &messageCb );
 std_msgs::Int32MultiArray encoder_counter; //To keep the count of ticks in the encoder 
