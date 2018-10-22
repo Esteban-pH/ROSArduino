@@ -34,13 +34,13 @@ int EN24  = 9;
 
 //Buttons
 int Forward   = 23;
-int Backward  = 24;
-int TurnRight = 25;
-int TurnLeft  = 26;
+int Backward  = 25;
+int TurnRight = 27;
+int TurnLeft  = 29;
 
 //Variables to send the speed
-double maxrads     = 16.3362818; //Max rads of the wheels, this to compute the pwm at 12V, to calculate this is maxpwm*2pi/60
-//double maxrads     = 8.16814089; //Max rads of the wheels, this to compute the pwm at 6V, to calculate this is maxpwm*2pi/60
+//double maxrads     = 16.3362818; //Max rads of the wheels, this to compute the pwm at 12V, to calculate this is maxpwm*2pi/60
+double maxrads     = 8.16814089; //Max rads of the wheels, this to compute the pwm at 6V, to calculate this is maxpwm*2pi/60
 double radio_in_m  = .120; //Input the radio of the wheels in meters
 double dis_wheels  = .29;  //Distance between the wheels in meters
 double wr, wi, pwm_wr, pwm_wi;
@@ -145,14 +145,14 @@ void TurnLeft_function(){
 }
 
 void Stop_function(){
-  digitalWrite(EN11, HIGH);
+  digitalWrite(EN11, LOW);
   digitalWrite(EN12, LOW);
-  digitalWrite(EN13, HIGH);
+  digitalWrite(EN13, LOW);
   digitalWrite(EN14, LOW);
   digitalWrite(EN21, LOW);
-  digitalWrite(EN22, HIGH);
+  digitalWrite(EN22, LOW);
   digitalWrite(EN23, LOW);
-  digitalWrite(EN24, HIGH);
+  digitalWrite(EN24, LOW);
 }
 
 //ROS variables to handle both suscribers and publisher

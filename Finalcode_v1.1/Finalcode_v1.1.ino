@@ -33,9 +33,9 @@ int EN24  = 9;
 
 //Buttons
 int Forward   = 23;
-int Backward  = 24;
-int TurnRight = 25;
-int TurnLeft  = 26;
+int Backward  = 25;
+int TurnRight = 27;
+int TurnLeft  = 29;
 
 //Variables to send the speed
 double maxrads     = 16.3362818; //Max rads of the wheels, this to compute the pwm at 12V, to calculate this is maxpwm*2pi/60
