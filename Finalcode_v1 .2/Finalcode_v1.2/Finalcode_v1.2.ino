@@ -29,6 +29,7 @@ int EN24  = 9;
 #define pin_enc_B_motor3 48
 #define pin_enc_A_motor4 47
 #define pin_enc_B_motor4 46
+//This is defined as 4 since it's what is required to send the info from the 4 encoders
 #define MULTIARRAY_SIZE 4 
 
 //Buttons
