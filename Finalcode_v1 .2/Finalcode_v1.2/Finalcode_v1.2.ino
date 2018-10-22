@@ -73,6 +73,7 @@ void messageCb(const geometry_msgs::Twist& cmd_vel){
   pwm_wi=(wi*255.0)/maxrads;
 
   //Depending on the value the value is written to the wheels, both wheels on each side are treated as one
+  //If the pwm is positive means forward if it's negative means backwards, then changes the sign
   if(pwm_wr>0){
     analogWrite(EN11, pwm_wr);
     analogWrite(EN12, 0);
