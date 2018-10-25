@@ -2,6 +2,7 @@
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int32MultiArray.h>
+#include <std_msgs/Float64.h>
 #include <Encoder.h> 
 
 //Driver 1, WR
@@ -21,14 +22,14 @@ int EN23  = 8;
 int EN24  = 9;
 
 //Ports for the encoder are defined
-#define pin_enc_A_motor1 53
+#define pin_enc_A_motor1 53 
 #define pin_enc_B_motor1 52
 #define pin_enc_A_motor2 51
 #define pin_enc_B_motor2 50
-#define pin_enc_A_motor3 49
-#define pin_enc_B_motor3 48
-#define pin_enc_A_motor4 47
-#define pin_enc_B_motor4 46
+#define pin_enc_A_motor3 48
+#define pin_enc_B_motor3 49
+#define pin_enc_A_motor4 46
+#define pin_enc_B_motor4 47
 //This is defined as 4 since it's what is required to send the info from the 4 encoders
 #define MULTIARRAY_SIZE 4 
 
@@ -40,7 +41,8 @@ int TurnLeft  = 29;
 
 //Variables to send the speed
 //double maxrads     = 16.3362818; //Max rads of the wheels, this to compute the pwm at 12V, to calculate this is maxpwm*2pi/60
-double maxrads     = 8.16814089; //Max rads of the wheels, this to compute the pwm at 6V, to calculate this is maxpwm*2pi/60
+//double maxrads     = 8.16814089; //Max rads of the wheels, this to compute the pwm at 6V, to calculate this is maxpwm*2pi/60
+double maxrads     = 6.0; //Max rads of the wheels, this to compute the pwm at 6V, to calculate this is maxpwm*2pi/60
 double radio_in_m  = .120; //Input the radio of the wheels in meters
 double dis_wheels  = .29;  //Distance between the wheels in meters
 double wr, wi, pwm_wr, pwm_wi;
@@ -64,10 +66,11 @@ Encoder myEnc_2(pin_enc_A_motor2,pin_enc_B_motor2);
 Encoder myEnc_3(pin_enc_A_motor3,pin_enc_B_motor3);
 Encoder myEnc_4(pin_enc_A_motor4,pin_enc_B_motor4);
 
+
 void messageCb(const geometry_msgs::Twist& cmd_vel){
   //Here the speeds for the wheels are calculated based on the given twist
-  wr=((2*cmd_vel.linear.x)+cmd_vel.angular.z*dis_wheels)/(2.0*radio_in_m);
-  wi=((2*cmd_vel.linear.x)-cmd_vel.angular.z*dis_wheels)/(2.0*radio_in_m);
+  wr=((2*cmd_vel.linear.x)+(cmd_vel.angular.z*dis_wheels))/(2.0*radio_in_m);
+  wi=((2*cmd_vel.linear.x)-(cmd_vel.angular.z*dis_wheels))/(2.0*radio_in_m);
   //The angular velocity is converted to pwm
   pwm_wr=(wr*255.0)/maxrads;
   pwm_wi=(wi*255.0)/maxrads;
@@ -196,10 +199,13 @@ void setup(){
  encoder_counter.data = (long int *)malloc(sizeof(long int)*8); 
  encoder_counter.data_length = MULTIARRAY_SIZE; 
  nh.advertise(encoder_counter_pub); //Inits the publisher
+ nh.advertise(floatPWM_pub);
  nh.subscribe(sub);
 }
 
 void loop(){
+  int lastState=0;
+  
   //Reads all the encoders
   newPosition_1 = myEnc_1.read();
   newPosition_2 = myEnc_2.read();
@@ -227,8 +233,10 @@ void loop(){
     TurnRight_function();
   else if(!digitalRead(TurnLeft))
     TurnLeft_function();
-  else
+  else if(pwm_wr==0 && pwm_wi == 0 && digitalRead(TurnLeft) && digitalRead(TurnRight) && digitalRead(Backward) && digitalRead(Forward)){
     Stop_function();
+  }
+
   //Publishes the new values in the encoders
   encoder_counter_pub.publish(&encoder_counter); 
   nh.spinOnce(); 
