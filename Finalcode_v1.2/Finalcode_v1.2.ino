@@ -199,7 +199,6 @@ void setup(){
  encoder_counter.data = (long int *)malloc(sizeof(long int)*8); 
  encoder_counter.data_length = MULTIARRAY_SIZE; 
  nh.advertise(encoder_counter_pub); //Inits the publisher
- nh.advertise(floatPWM_pub);
  nh.subscribe(sub);
 }
 
