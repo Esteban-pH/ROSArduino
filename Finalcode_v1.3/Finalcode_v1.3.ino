@@ -41,7 +41,7 @@ double maxrads     = 6.0; //Max rads of the wheels, this to compute the pwm at 6
 double radio_in_m  = .120; //Input the radio of the wheels in meters
 double dis_wheels  = .29;  //Distance between the wheels in meters
 double countrev    = 4480.0;
-double wr, wi, pwm_wr, pwm_wi;
+double wr=0, wi=0, pwm_wr=0, pwm_wi=0;
 
 //Variables for the encoders and its position
 long oldPosition_1  = -999;   
@@ -66,8 +66,9 @@ double deltapos_4, rads_4;
 double real_wr, real_wi;
 //Variables PID controller
 double pid_wr, pid_wi;
-PID PID_wr(&real_wr, &pid_wr, &wr,1,1,0,DIRECT);
-PID PID_wi(&real_wi, &pid_wi, &wi,1,1,0,DIRECT);
+//PID controllers, it's Input, Output, Setpoing, Kp, Ki, Kd, DIRECT
+PID PID_wr(&real_wr, &pid_wr, &wr,1,2,0,DIRECT);
+PID PID_wi(&real_wi, &pid_wi, &wi,1,2,0,DIRECT);
 
 unsigned long intervalms=10; //Frequency of the program
 
@@ -177,8 +178,10 @@ void setup(){
  //Starts PID Controllers
  PID_wr.SetMode(AUTOMATIC);
  PID_wi.SetMode(AUTOMATIC);
+ //Default time is 200ms, which can be very slow for many applications
  PID_wr.SetSampleTime(intervalms);
  PID_wi.SetSampleTime(intervalms);
+ //This is needed since it starts with 0 to 255 as limits by default
  PID_wi.SetOutputLimits(-maxrads, maxrads);
  PID_wr.SetOutputLimits(-maxrads, maxrads);
 }
